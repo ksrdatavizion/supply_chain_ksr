@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: Customer_order
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_date
+        tests:
+          - not_null
+      - name: CUSTOMER_EMAIL
+        tests:
+          - not_null
+          - test_column_length_is:
+              expected_length: 25
+              severity: warn
+          - test_valid_email_format:
+              severity: warn
+              tags: ['raw_QA']
+      - name: customer_phone
+        tests:
+          - not_null
+          - test_column_length_is:
+              expected_length: 10
+              tags: ['raw_QA'] 
+      - name: quantity
+        tests:
+          - not_null
+      - name: fuel_type
+        tests:
+          - accepted_values:
+              values: ['Petrol', 'Diesel', 'Electric', 'Hybrid']  # update based on actual values
+  - name: item_inventory
+    columns:
+      - name: item_id
+        tests:
+          - unique
+          - not_null
+      - name: item_name
+        tests:
+          - not_null
+      - name: category
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['SUV', 'Sedan', 'Hatchback', 'Truck']  # example values
+              severity: warn
+      - name: fuel_type
+        tests:
+          - accepted_values:
+              values: ['Petrol', 'Diesel', 'Electric', 'Hybrid']
+			  
