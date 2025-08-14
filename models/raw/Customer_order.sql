@@ -1,19 +1,20 @@
 {{ config(
     materialized='incremental',
     unique_key='order_id',
-    strategy = 'merge',
+    incremental_strategy = 'merge',
+     tags=['raw'],
     pre_hook=[
-        "USE DATABASE SUPPLY_CHAIN;",
+        "USE DATABASE {{ target.database }};",
         "USE SCHEMA LANDING;",
         "{{ copy_into_customer_order() }}"
     ],
     post_hook=[
         """
-        DELETE FROM SUPPLY_CHAIN.LANDING.RAW_CUSTOMER_ORDER
+        DELETE FROM {{ target.database }}.LANDING.RAW_CUSTOMER_ORDER
         WHERE LOAD_TS < DATEADD(DAY, -90, CURRENT_DATE);
         """,
         """
-               INSERT INTO SUPPLY_CHAIN.AUDIT.MODEL_EXECUTION_LOG (
+               INSERT INTO {{ target.database }}.AUDIT.MODEL_EXECUTION_LOG (
                     model_name,
                     load_date,
                     row_count,
@@ -30,12 +31,12 @@
                     MAX(STG_LAST_MODIFIED) AS last_modified,
                     'SUCCESS'        AS status,
                     'Load completed successfully via COPY INTO + dbt incremental' AS comments
-                FROM SUPPLY_CHAIN.LANDING.RAW_CUSTOMER_ORDER
+                FROM {{ target.database }}.LANDING.RAW_CUSTOMER_ORDER
                 WHERE CAST(LOAD_TS AS DATE) = CURRENT_DATE
                 AND STG_FILE_NAME IS NOT NULL
                 AND STG_FILE_NAME NOT IN (
                     SELECT file_name
-                    FROM SUPPLY_CHAIN.AUDIT.MODEL_EXECUTION_LOG
+                    FROM {{ target.database }}.AUDIT.MODEL_EXECUTION_LOG
                     WHERE model_name = 'Customer_order'
                 )
                 GROUP BY STG_FILE_NAME;
