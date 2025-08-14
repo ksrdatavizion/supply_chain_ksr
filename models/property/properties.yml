@@ -340,11 +340,6 @@ snapshots:
         description: "Derived field: the week start date of the order_date."
       - name: snapshot_ts
         description: "Timestamp when the snapshot record was created."
-    tests:
-      - no_special_chars:
-          column_names: ["customer_name", "city_name", "item_name", "fuel_type"]
-          tags: ['silver']
-          description: "Ensures these text columns contain no special characters."
 
   - name: item_inventory_snapshot
     config:

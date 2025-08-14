@@ -1,4 +1,4 @@
-{% test test_valid_email_format(model, column_name) %}
+{% test valid_email_format(model, column_name) %}
 
 SELECT *
 FROM {{ model }}
